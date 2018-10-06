@@ -103,13 +103,13 @@ public class Hash {
         hashArray[probFun] = value;
         currSize++;
         if (value.isMovie()) {
-        		MovieNode mn = sm.addMovie(value.getName());
+        	MovieNode mn = sm.addMovie(value.getName());
         		
-        		value.setMovie(mn);
+        	value.setMovie(mn);
         }
         else {
-        		ReviewerNode rn = sm.addReviewer(value.getName());
-        		value.setReviewer(rn);
+        	ReviewerNode rn = sm.addReviewer(value.getName());
+        	value.setReviewer(rn);
         }
             //System.out.println("|" + key + "| "
             //    + "has been added to the Name database.");
@@ -189,11 +189,17 @@ public class Hash {
      *            to be deleted
      * @return if it is deleted or not ( found)
      */
-    public boolean hashDelete(String arg) {
+    public boolean hashDelete(String arg, SparseMatrix sm) {
         int intialStratPos = h(arg, hashTableSize);
         int probFun = intialStratPos;
         for (int i = 1; hashArray[probFun] != null; i++) {
             if (arg.equals(hashArray[probFun].getName())) {
+                if (hashArray[probFun].isMovie()) {
+                    sm.deleteMovie(hashArray[probFun]);
+                }
+                else {
+                    sm.deleteReviewer(hashArray[probFun]);
+                }
                 hashArray[probFun] = tombStone;
                 currSize--;
                 return true;

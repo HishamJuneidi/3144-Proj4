@@ -6,6 +6,7 @@
 public class ReviewerNode {
     private String value;
     private ReviewerNode bottom;
+    private ReviewerNode top;
     private RatingNode next;
     private int index;
     
@@ -42,6 +43,14 @@ public class ReviewerNode {
      */
     public ReviewerNode bottom() {
         return bottom;
+    }
+
+    public void setTop(ReviewerNode t) {
+        top = t;
+    }
+
+    public ReviewerNode top() {
+        return top;
     }
     
     /**

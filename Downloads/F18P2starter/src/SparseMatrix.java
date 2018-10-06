@@ -22,19 +22,20 @@ public class SparseMatrix {
      */
     public MovieNode addMovie(String movieName) {
         MovieNode curr = movies;
+        int index = 0;
         if (curr == null) {
             movies = new MovieNode(movieName);
+            movies.setIndex(index);
             return movies;
-        }
-        int index = this.searchMovie(movieName);
-        if (index != -1) {
-            return null;
         }
         while (curr.next() != null) {
             curr = curr.next();
+            index++;
         }
         MovieNode newMovie = new MovieNode(movieName);
+        newMovie.setIndex(index);
         curr.setNext(newMovie);
+        newMovie.setPrevious(curr);
         return newMovie;
     }
     
@@ -66,15 +67,12 @@ public class SparseMatrix {
             numReviewers++;
             return reviewers;
         }
-        int index = this.searchReviewer(name);
-        if (index != -1) {
-            return null;
-        }
         while (curr.bottom() != null) {
             curr = curr.bottom();
         }
         ReviewerNode newReviewer = new ReviewerNode(name, numReviewers);
         curr.setBottom(newReviewer);
+        newReviewer.setTop(curr);
         numReviewers++;
         return newReviewer;
     }
@@ -83,8 +81,31 @@ public class SparseMatrix {
      * deletes movie from matrix
      * @param movieName name of movie being deleted
      */
-    public void deleteMovie(String movieName) {
-        int index = this.searchMovie(movieName);
+    public void deleteMovie(ArrayRecord movieName) {
+        MovieNode mn = movieName.movie();
+        MovieNode prev = mn.getPrevious();
+        if (prev != null) {
+            prev.setNext(mn.next());
+        }
+        if (mn.next() != null) {
+            mn.next().setPrevious(prev);
+            mn.setNext(null);
+        }
+        mn.setPrevious(null);
+        RatingNode rating = mn.bottom();
+        while (rating != null) {
+            RatingNode previous = rating.previous();
+            if (previous != null) {
+                previous.setNext(rating.next());
+            }
+            if (rating.next() != null) {
+                rating.next().setPrevious(previous);
+            }
+            rating.setPrevious(null);
+            rating.setNext(null);
+            rating = rating.bottom();
+        }
+        /*int index = this.searchMovie(movieName);
         if (index != -1) {
             MovieNode movie = this.movies;
             if (movie.value().equals(movieName)) {
@@ -125,7 +146,7 @@ public class SparseMatrix {
                 }
                 critic = critic.bottom();
             }
-        }
+        }*/
 
     }
     
@@ -133,8 +154,31 @@ public class SparseMatrix {
      * deletes reviewer from matrix
      * @param name name of reviewer being removed
      */
-    public void deleteReviewer(String name) {
-        int index = this.searchReviewer(name);
+    public void deleteReviewer(ArrayRecord name) {
+        ReviewerNode rn = name.reviewer();
+        ReviewerNode top = rn.top();
+        if (top != null) {
+            top.setBottom(rn.bottom());
+        }
+        if (rn.bottom() != null) {
+            rn.bottom().setTop(top);
+            rn.setBottom(null);
+        }
+        rn.setTop(null);
+        RatingNode rating = rn.next();
+        while (rating != null) {
+            RatingNode t = rating.top();
+            if (t != null) {
+                t.setBottom(rating.bottom());
+            }
+            if (rating.bottom() != null) {
+                rating.bottom().setTop(t);
+            }
+            rating.setTop(null);
+            rating.setBottom(null);
+            rating = rating.next();
+        }
+        /*int index = this.searchReviewer(name);
         if (index != -1) {
             ReviewerNode reviewer = this.reviewers;
             if (reviewer.value().equals(name)) {
@@ -175,7 +219,7 @@ public class SparseMatrix {
                 }
                 movie = movie.next();
             }
-        }
+        }*/
     }
     
     /**
@@ -223,40 +267,21 @@ public class SparseMatrix {
      * @param rating rating given to movie
      */
     public void addRating(MovieNode mn, ReviewerNode rn, int rating) {
-        //int movieIndex = this.searchMovie(movie);
-        //int reviewerIndex = this.searchReviewer(reviewer);
-        //if (movieIndex == -1) {
-        //    movieIndex = this.addMovie(movie);
-        //}
-        //if (reviewerIndex == -1) {
-        //    reviewerIndex = this.addReviewer(reviewer);
-        //}
-        MovieNode currMovie = movies;
-        ReviewerNode currReviewer = reviewers;
-        while (!currMovie.value().equals(mn.value())) {
-            currMovie = currMovie.next();
-        }
-
-        while (!currReviewer.value().equals(rn.value())) {
-            currReviewer = currReviewer.bottom();
-        }
         RatingNode r = new RatingNode(mn.value(), rn.value(), 
-                rating, currReviewer.getIndex());
-        if (currMovie.bottom() == null) {
-            currMovie.setBottom(r);
+                rating, rn.getIndex());
+        if (mn.bottom() == null) {
+            mn.setBottom(r);
         } 
         else {
-            RatingNode curr = currMovie.bottom();
+            RatingNode curr = mn.bottom();
             if (curr.reviewerIndex() > r.reviewerIndex()) {
                 r.setBottom(curr);
-                currMovie.setBottom(r);
-                //return;
+                curr.setTop(r);
+                mn.setBottom(r);
             }
             else if (curr.reviewerIndex() == r.reviewerIndex()) {
                 curr.setRating(rating);
-                //return;
             }
-            // int i = 0;
             else {
 	            while (curr.bottom() != null && 
 	                    curr.bottom().reviewerIndex() < r.reviewerIndex()) {
@@ -265,39 +290,74 @@ public class SparseMatrix {
 	                    break;
 	                }
 	                curr = curr.bottom();
-	                // i++;
 	            }
 	            
 	            if (curr.bottom() == null || curr.bottom().reviewerIndex() > r.reviewerIndex()) {
-	            		r.setBottom(curr.bottom());
-	            		curr.setBottom(r);
+                    r.setBottom(curr.bottom());
+                    if (r.bottom() != null) {
+                        r.bottom().setTop(r);
+                    }
+                    curr.setBottom(r);
+                    r.setTop(curr);
 	            }
             }
         }
-        if (currReviewer.next() == null) {
-            currReviewer.setNext(r);
+        int index = 0;
+        if (rn.next() == null) {
+            rn.setNext(r);
+            return;
         } 
+        else if (index == mn.index()) {
+            RatingNode next = rn.next();
+            r.setNext(next);
+            rn.setNext(r);
+            if (next != null) {
+                next.setPrevious(r);
+            }
+            return;
+        }
         else {
-            RatingNode curr = currReviewer.next();
+            RatingNode curr = rn.next();
             if (curr.movie().equals(r.movie())) {
                 curr.setRating(rating);
-                //return;
+                return;
             }
             else {
-	            
-	            while (curr.next() != null && !curr.next().movie().equals(mn.value())) {
-	            		if (curr.next().movie() == r.movie()) {
+	            index = 1;
+	            while (curr.next() != null && index < mn.index()) {
+                    
+	            	if (curr.next().movie() == r.movie()) {
 	                    curr.next().setRating(rating);
-	                    break;
+	                    return;
 	                }
 	                curr = curr.next();
-	                
+                    index++;
+                    if (index == mn.index()) {
+                        RatingNode next = curr.next();
+                        r.setNext(next);
+                        curr.setNext(r);
+                        r.setPrevious(curr);
+                        if (next != null) {
+                            next.setPrevious(r);
+                        }
+                        return;
+                    }
 	            }
-	            if (curr.next() == null || 
-	            		curr.next().reviewerIndex() > r.reviewerIndex()) {
-	            		r.setNext(curr.next());
-	            		curr.setNext(r);
-	            }
+	            if (curr.next() != null) {
+                    if (curr.next().movie() == r.movie()) {
+	                    curr.next().setRating(rating);
+	                    return;
+                    }
+                }
+                RatingNode next = curr.next();
+	            r.setNext(next);
+                curr.setNext(r);
+                r.setPrevious(curr);
+                if (next != null) {
+                    next.setPrevious(r);
+                }
+                return;
+                
             }
         }
     }

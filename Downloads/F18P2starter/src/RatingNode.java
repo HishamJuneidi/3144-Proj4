@@ -10,7 +10,9 @@ public class RatingNode {
     private String movie;
     private String reviewer;
     private RatingNode next;
+    private RatingNode previous;
     private RatingNode bottom;
+    private RatingNode top;
     
     /**
      * constructor for rating node
@@ -73,6 +75,14 @@ public class RatingNode {
     public void setNext(RatingNode n) {
         next = n;
     }
+
+    public RatingNode previous() {
+        return previous;
+    }
+
+    public void setPrevious(RatingNode p) {
+        previous = p;
+    }
     
     
     /**
@@ -90,6 +100,14 @@ public class RatingNode {
     public void setBottom(RatingNode b) {
         bottom = b;
     }
+
+    public RatingNode top() {
+        return top;
+    }
+
+    public void setTop(RatingNode t) {
+        top = t;
+    } 
     
     /**
      * gets reviewer index

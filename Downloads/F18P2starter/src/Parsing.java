@@ -76,12 +76,12 @@ public class Parsing {
                                 movieBuild.append(longStr.charAt(j));
                             }
                             String movie = movieBuild.toString().trim();
-                            boolean deleted = movies.hashDelete(movie);
+                            boolean deleted = movies.hashDelete(movie, sm);
                             if (deleted) {
                                 System.out.print("|" + movie + 
                                         "| has been deleted ");
                                 System.out.println("from the Movie database.");
-                                sm.deleteMovie(movie);
+                                //sm.deleteMovie(movie);
                             } 
                             else {
                                 System.out.print("|" + movie + 
@@ -99,13 +99,13 @@ public class Parsing {
                                 reviewerBuild.append(longStr.charAt(j));
                             }
                             String reviewer = reviewerBuild.toString().trim();
-                            boolean deleted = critics.hashDelete(reviewer);
+                            boolean deleted = critics.hashDelete(reviewer, sm);
                             if (deleted) {
                                 System.out.print("|" + reviewer + 
                                         "| has been deleted ");
                                 System.out.println("from the "
                                         + "Reviewer database.");
-                                sm.deleteReviewer(reviewer);
+                                //sm.deleteReviewer(reviewer);
                             } 
                             else {
                                 System.out.print("|" + reviewer + 

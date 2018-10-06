@@ -6,7 +6,9 @@
  **/
 public class MovieNode {
     private String value;
+    private int index;
     private MovieNode next;
+    private MovieNode previous;
     private RatingNode bottom;
     /**
      * 
@@ -36,6 +38,14 @@ public class MovieNode {
     public MovieNode next() {
         return next;
     }
+
+    public void setPrevious(MovieNode p) {
+        previous = p;
+    }
+
+    public MovieNode getPrevious() {
+        return previous;
+    }
     /**
      * 
      * @param b set bottom node
@@ -49,6 +59,14 @@ public class MovieNode {
      */
     public RatingNode bottom() {
         return bottom;
+    }
+
+    public void setIndex(int i) {
+        this.index = i;
+    }
+
+    public int index() {
+        return this.index;
     }
     
 }
